@@ -1,0 +1,1413 @@
+-----Practical 1----
+**Python File**
+//Que-1//
+chef1Inp = input("Enter Chef-1 ratings: ").split(' ')
+chef2Inp = input("Enter Chef-2 ratings: ").split(' ')
+chef1 = [int(rating) for rating in chef1Inp]
+chef2 = [int(rating) for rating in chef2Inp]
+chef1Points = 0
+chef2Points = 0
+output = []
+for idx in range(len(chef1)):
+    if chef1[idx] == chef2[idx]:
+        continue
+    elif chef1[idx] > chef2[idx]:
+        chef1Points += 1
+    else:
+        chef2Points += 1
+
+output.append(chef1Points)
+output.append(chef2Points)
+print(output)
+
+//Que 2//
+n = input("Enter Numbers: ").split(' ')
+num = [int(x) for x in n]
+print(num)
+least = float('inf')
+ans = []
+for i in range(len(num)):
+    for j in range(i + 1, len(num)):
+        diff = abs(num[i] + num[j])
+        if diff < least:
+            least = diff
+            ans = [(num[i], num[j])]
+        elif diff == least:
+            ans.append((num[i], num[j]))
+for pair in ans:
+    print(pair[0], pair[1])
+
+-----Practical 2----
+**Python File**
+//Que-1//
+import time
+import matplotlib.pyplot as plt
+import sys
+sys.setrecursionlimit(1000000)
+def sum_using_loop(N):
+    total = 0
+    for i in range(1, N + 1):
+        total += i
+    return total
+def sum_using_equation(N):
+    return N * (N + 1) // 2
+def sum_using_recursion(N):
+    if N == 1:
+        return 1
+    return N + sum_using_recursion(N - 1)
+def measure_time(func, N):
+    start_time = time.time()
+    try:
+        func(N)
+    except RecursionError:
+        return float('inf')  
+    end_time = time.time()
+    return end_time - start_time
+input_sizes = [100, 1000, 5000, 10000, 20000, 50000, 100000]
+loop_times = []
+equation_times = []
+recursion_times = []
+for size in input_sizes:
+    loop_times.append(measure_time(sum_using_loop, size))
+    equation_times.append(measure_time(sum_using_equation, size))
+    recursion_times.append(measure_time(sum_using_recursion, size))
+plt.figure(figsize=(12, 6))
+plt.plot(input_sizes, loop_times, label='Loop', marker='o')
+plt.plot(input_sizes, equation_times, label='Equation', marker='o')
+plt.plot(input_sizes, recursion_times, label='Recursion', marker='o')
+plt.xlabel('Input Size (N)')
+plt.ylabel('Execution Time (seconds)')
+plt.title('Comparison of Execution Time for Sum of 1 to N')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+//Que-2//
+import time
+import matplotlib.pyplot as plt 
+def fibonacci_iterative(n):
+    if n <= 1:
+        return n
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+def fibonacci_recursive(n):
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+def measure_time(func, n):
+    start_time = time.time()
+    func(n)
+    end_time = time.time()
+    return end_time - start_time
+input_sizes = [5, 10, 15, 20, 25, 30, 35]
+iterative_times = []
+recursive_times = []
+for size in input_sizes:
+    iterative_times.append(measure_time(fibonacci_iterative, size))
+    recursive_times.append(measure_time(fibonacci_recursive, size))
+n_months = 12
+rabbit_pairs_iterative = fibonacci_iterative(n_months)
+rabbit_pairs_recursive = fibonacci_recursive(n_months)
+print(f"Number of rabbit pairs after {n_months} months (Iterative): {rabbit_pairs_iterative}")
+print(f"Number of rabbit pairs after {n_months} months (Recursive): {rabbit_pairs_recursive}")
+plt.figure(figsize=(12, 6))
+plt.plot(input_sizes, iterative_times, label='Iterative', marker='o')
+plt.plot(input_sizes, recursive_times, label='Recursive', marker='o')
+plt.xlabel('Input Size (n)')
+plt.ylabel('Execution Time (seconds)')
+plt.title('Comparison of Execution Time for Fibonacci Calculation')
+plt.legend()
+plt.grid(True)
+plt.show() 
+
+-----Practical 3----
+**Python File**
+from flask import Flask, render_template
+import time
+import random
+import plotly.graph_objs as go
+import plotly.offline as pyo
+app = Flask(__name__)
+def selection_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        min_idx = i
+        for j in range(i + 1, n):
+            if arr[j] < arr[min_idx]:
+                min_idx = j
+        arr[i], arr[min_idx] = arr[min_idx], arr[i]
+def insertion_sort(arr):
+    n = len(arr)
+    for i in range(1, n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0 and key < arr[j]:
+            arr[j + 1] = arr[j]
+            j -= 1
+        arr[j + 1] = key
+def bubble_sort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+def measure_time(sort_function, arr):
+    start_time = time.time()
+    sort_function(arr.copy())
+    end_time = time.time()
+    return end_time - start_time
+@app.route('/')
+def index():
+    sizes = [100, 300, 600, 1000, 8000]
+    selection_times = []
+    insertion_times = []
+    bubble_times = []
+    for size in sizes:
+        arr = random.sample(range(size * 10), size)
+        selection_times.append(round(measure_time(selection_sort, arr), 5))
+        insertion_times.append(round(measure_time(insertion_sort, arr), 5))
+        bubble_times.append(round(measure_time(bubble_sort, arr), 5))
+    trace1 = go.Scatter(x=sizes, y=selection_times, mode='lines+markers', name='Selection Sort')
+    trace2 = go.Scatter(x=sizes, y=insertion_times, mode='lines+markers', name='Insertion Sort')
+    trace3 = go.Scatter(x=sizes, y=bubble_times, mode='lines+markers', name='Bubble Sort')
+    layout = go.Layout(
+        title='Comparison of Sorting Algorithms',
+        xaxis=dict(title='Number of Elements'),
+        yaxis=dict(title='Time Taken (seconds)'),
+    )
+    fig = go.Figure(data=[trace1, trace2, trace3], layout=layout)
+    plot_html = pyo.plot(fig, output_type='div', include_plotlyjs=True)
+    return render_template('prac3.html', plot=plot_html, sizes=sizes,
+                           selection_times=selection_times,
+                           insertion_times=insertion_times,
+                           bubble_times=bubble_times)
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+**HTML File**
+<html>
+<head>
+    <title>Comparison of Sorting Algorithms</title>
+</head>
+<body>
+    {{ plot|safe }}
+    <h2>Comparison of Sorting Algorithms</h2>
+    <table border="4">
+        <thead>
+            <tr>
+                <th>Number of Elements</th>
+                <th>Selection Sort Time (s)</th>
+                <th>Insertion Sort Time (s)</th>
+                <th>Bubble Sort Time (s)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(sizes|length) %}
+            <tr>
+                <td>{{ sizes[i] }}</td>
+                <td>{{ selection_times[i] }}</td>
+                <td>{{ insertion_times[i] }}</td>
+                <td>{{ bubble_times[i] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+
+
+-----Practical 4----
+**Python File**
+from flask import Flask, render_template
+import time
+import random
+import matplotlib.pyplot as plt
+import io
+import base64
+app = Flask(__name__)
+class Employee:
+    def __init__(self, emp_id, name, age, salary, designation, mobile):
+        self.emp_id = emp_id
+        self.name = name
+        self.age = age
+        self.salary = salary
+        self.designation = designation
+        self.mobile = mobile
+employees = [
+    Employee(1, "Pratham", 45, 90000, "Manager", "9876543210"),
+    Employee(2, "Divya", 25, 50000, "Developer", "9876543211"),
+    Employee(3, "Nachiket", 22, 30000, "Intern", "9876543212"),
+    Employee(4, "Dhruvil", 60, 150000, "CEO", "9876543213"),
+    Employee(5, "Deepak", 35, 70000, "Designer", "9876543214"),
+]
+def linear_search(employees, target, key):
+    for i, emp in enumerate(employees):
+        if getattr(emp, key) == target:
+            return i
+    return -1
+def binary_search_recursive(employees, target, key, low, high):
+    if high >= low:
+        mid = (high + low) // 2
+        if getattr(employees[mid], key) == target:
+            return mid
+        elif getattr(employees[mid], key) > target:
+            return binary_search_recursive(employees, target, key, low, mid - 1)
+        else:
+            return binary_search_recursive(employees, target, key, mid + 1, high)
+    else:
+        return -1
+
+def measure_time(search_func, employees, target, key, *args):
+    start_time = time.time()
+    result = search_func(employees, target, key, *args)
+    end_time = time.time()
+    return result, end_time - start_time
+
+@app.route('/')
+def index():
+    highest_salary = max(employees, key=lambda x: x.salary).salary
+    index_high, linear_time_high = measure_time(linear_search, employees, highest_salary, "salary")
+    highest_salary_designation = employees[index_high].designation
+
+    lowest_salary = min(employees, key=lambda x: x.salary).salary
+    index_low, linear_time_low = measure_time(linear_search, employees, lowest_salary, "salary")
+    lowest_salary_name = employees[index_low].name
+
+    youngest_age = min(employees, key=lambda x: x.age).age
+    index_young, linear_time_young = measure_time(linear_search, employees, youngest_age, "age")
+    youngest_mobile = employees[index_young].mobile
+
+    oldest_age = max(employees, key=lambda x: x.age).age
+    index_old, linear_time_old = measure_time(linear_search, employees, oldest_age, "age")
+    oldest_salary = employees[index_old].salary
+
+    sizes = [10, 100, 500, 1000, 5000, 10000]
+    linear_times = []
+    binary_times = []
+
+    for size in sizes:
+        sample_employees = random.sample(employees * (size // len(employees)), size)
+        sample_employees.sort(key=lambda x: x.salary)
+        target = sample_employees[-1].salary
+
+        _, linear_time = measure_time(linear_search, sample_employees, target, "salary")
+        _, binary_time = measure_time(binary_search_recursive, sample_employees, target, "salary", 0, len(sample_employees) - 1)
+        linear_times.append(linear_time)
+        binary_times.append(binary_time)
+    plt.plot(sizes, linear_times, label="Linear Search")
+    plt.plot(sizes, binary_times, label="Binary Search")
+    plt.xlabel('Number of Elements')
+    plt.ylabel('Time Taken (seconds)')
+    plt.title('Time Taken vs Number of Elements')
+    plt.legend()
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+    return render_template('prac4.html',
+                           plot_url=plot_url,
+                           highest_salary_designation=highest_salary_designation,
+                           lowest_salary_name=lowest_salary_name,
+                           youngest_mobile=youngest_mobile,
+                           oldest_salary=oldest_salary)
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+**HTMl File**
+<html>
+<title>Employee Search Analysis</title>
+</head>
+<body>
+<h1>Employee Search Analysis</h1>
+<h2>Results</h2>
+<ul>
+<li><strong>Designation with the Highest Salary:</strong> {{ highest_salary_designation }}</li>
+<li><strong>Employee with the Lowest Salary:</strong> {{ lowest_salary_name }}</li>
+<li><strong>Mobile Number of the Youngest Employee:</strong> {{ youngest_mobile }}</li>
+<li><strong>Salary of the Oldest Employee:</strong> {{ oldest_salary }}</li>
+</ul>
+<h2>Search Time Analysis</h2>
+<img src="data:image/png;base64,{{ plot_url }}" alt="Time Taken vs Number of Elements">
+</body>
+</html>
+
+-----Practical 5----
+**Python File**
+from flask import Flask, render_template
+import plotly.graph_objs as go
+import plotly.offline as pyo
+app = Flask(__name__)
+def min_coins(coins, value):
+    dp = [float('inf')] * (value + 1)
+    dp[0] = 0
+    for i in range(1, value + 1):
+        for coin in coins:
+            if i >= coin:
+                dp[i] = min(dp[i], dp[i - coin] + 1)              
+    return dp[value] if dp[value] != float('inf') else -1
+@app.route('/')
+def index():
+    coins = [1, 4, 6]  
+    values = list(range(1, 21))
+    results = [min_coins(coins, value) for value in values]
+    trace = go.Scatter(x=values, y=results, mode='lines+markers', name='Min Coins')
+    layout = go.Layout(
+        title='Minimum Coins Required for Different Values',
+        xaxis=dict(title='Value (Rs.)'),
+        yaxis=dict(title='Number of Coins')
+    )
+    fig = go.Figure(data=[trace], layout=layout)
+    plot_html = pyo.plot(fig, output_type='div', include_plotlyjs=True)
+    return render_template('prac5.html', plot=plot_html, coins=coins, target_value=9, result=results[8])
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<html>
+<head>
+    <title>Minimum Coins Required</title>
+</head>
+<body>
+    <h3>Minimum Coins Required for Rs. 9</h3>
+    <p>The minimum number of coins required to make Rs. 9 is: {{ result }}</p>
+    <h3>Coin Denominations Used</h3>
+    <p>Available coins: Rs. {{ coins }}</p>
+    <h3>Graphical Representation</h3>
+      <p>  {{ plot|safe }}</p>
+</body>
+</html>
+
+-----Practical 6----
+**Python File**
+from flask import Flask,render_template,request
+app=Flask(__name__)
+def matrix_chain_order(p):
+    n=len(p) - 1
+    m=[[0 for _ in range(n)] for _ in range(n)]
+    s = [[0 for _ in range(n)] for _ in range(n)]
+    for l in range(2, n + 1):
+        for i in range(n - l + 1):
+            j = i + l - 1
+            m[i][j] = float('inf')
+            for k in range(i, j):
+                q = m[i][k] + m[k + 1][j] + p[i] * p[k + 1] * p[j + 1]
+                if q < m[i][j]:
+                    m[i][j] = q
+                    s[i][j] = k
+    return m, s
+def optimal_parenthesization(s, i, j):
+    if i == j:
+        return f"A{i+1}"
+    else:
+        return f"({optimal_parenthesization(s, i, s[i][j])} * {optimal_parenthesization(s, s[i][j] + 1, j)})"
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = None
+    if request.method == 'POST':
+        dims = request.form['dimensions']
+        p = list(map(int, dims.split(',')))
+        m, s = matrix_chain_order(p)
+        min_cost = m[0][-1]
+        optimal_solution = optimal_parenthesization(s, 0, len(p) - 2)
+        n = len(p) - 1
+        m_table = [[None for _ in range(n)] for _ in range(n)]
+        for i in range(n):
+            for j in range(i, n):
+                m_table[i][j] = m[i][j] if j >= i else None
+        result = {
+            'min_cost': min_cost,
+            'optimal_solution': optimal_solution,
+            'm_table': m_table,
+            'dimensions': dims
+        }
+    return render_template('prac6.html', result=result)
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Chain Multiplication</title>
+</head>
+<body>
+    <h1>Matrix Chain Multiplication</h1>
+    <form method="post">
+        <label for="dimensions">Enter matrix dimensions
+            (comma-separated):</label>
+        <input type="text" id="dimensions" name="dimensions" placeholder="e.g., 5,10,3,12,5,50,6">
+        <button type="submit">Calculate</button>
+    </form>
+    {% if result %}
+    <h2>Results:</h2>
+    <p><strong>Minimum number of multiplications:</strong> {{
+        result.min_cost }}</p>
+    <p><strong>Optimal parenthesization:</strong> {{
+        result.optimal_solution }}</p>
+    <h2>Dynamic Programming Table:</h2>
+    <table border="1" cellpadding="10" cellspacing="0">
+        <thead>
+            <tr>
+                {% for i in range(result.m_table|length) %}
+                <th>A{{ i + 1 }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(result.m_table|length) %}
+            <tr>
+                {% for j in range(result.m_table[i]|length) %}
+                <td>
+                    {% if result.m_table[i][j] is not none %}
+                    {{ result.m_table[i][j] }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</body> 
+</html>
+
+-----Practical 7----
+**Python File**
+from flask import Flask, request, render_template
+app = Flask(__name__)
+def fractional_knapsack(values, weights, capacity):
+    n = len(values)
+    value_weight_ratio = [(values[i]/weights[i], i) for i in range(n)]
+    value_weight_ratio.sort(reverse=True, key=lambda x: x[0])
+    total_value = 0
+    total_weight = 0
+    knapsack_contents = []
+    for ratio, index in value_weight_ratio:
+        if total_weight + weights[index] <= capacity:
+            total_value += values[index]
+            total_weight += weights[index]
+            knapsack_contents.append((index+1, values[index], weights[index], 1))  # 1 means full item taken
+        else:
+            remaining_weight = capacity - total_weight
+            fraction = remaining_weight / weights[index]
+            total_value += values[index] * fraction
+            total_weight += remaining_weight
+            knapsack_contents.append((index+1, values[index], weights[index], fraction))
+            break
+    return total_value, knapsack_contents
+def parse_input(input_str):
+    try:
+        return [float(x) for x in input_str.strip().split()]
+    except ValueError:
+        return None  
+@app.route('/')
+def home():
+    return render_template('prac7.1.html')
+@app.route('/solve', methods=['POST'])
+def solve():
+    try:
+        n = int(request.form['n'])  
+        capacity = float(request.form['capacity'])   
+        values_input = request.form['values']
+        weights_input = request.form['weights']
+        values = parse_input(values_input)
+        weights = parse_input(weights_input)
+        if values is None or weights is None or len(values) != n or len(weights) != n:
+            return "Invalid input. Please enter space-separated numbers."
+        max_value, knapsack_contents = fractional_knapsack(values, weights, capacity)
+        return render_template('prac7.2.html', max_value=max_value, contents=knapsack_contents)
+    except ValueError:
+        return "Invalid input. Please check the values and weights."
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Fractional Knapsack Solver</title>
+</head>
+
+<body>
+    <h2>Fractional Knapsack Solver</h2>
+    <form action="/solve" method="POST">
+        <label for="n">Number of Items:</label>
+        <input type="number" name="n" id="n" required><br><br>
+        <label for="capacity">Knapsack Capacity:</label>
+        <input type="number" step="any" name="capacity" id="capacity" required><br><br>
+        <h3>Enter the Values and Weights of Items:</h3>
+        <div id="items">
+            <div class="item">
+                <label for="values">Values (separated by space):</label>
+                <input type="text" name="values" id="values" required><br><br>
+
+                <label for="weights">Weights (separated by space):</label>
+                <input type="text" name="weights" id="weights" required><br><br>
+            </div>
+        </div>
+        <button type="submit">Solve</button>
+    </form>
+</body>
+
+</html>
+
+**HTMl-2 File**
+<html>
+<head>
+    <title>Knapsack Results</title>
+</head>
+<body>
+    <h2>Results</h2>
+    <p>Total Value: {{ max_value }}</p>
+    <h3>Items Taken:</h3>
+    <table border="1">
+        <tr>
+            <th>Item</th>
+            <th>Value</th>
+            <th>Weight</th>
+            <th>Fraction Taken</th>
+        </tr>
+        {% for item, value, weight, fraction in contents %}
+        <tr>
+            <td>{{ item }}</td>
+            <td>{{ value }}</td>
+            <td>{{ weight }}</td>
+            <td>{{ fraction }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+
+</html>
+
+-----Practical 8----
+**Python File**
+from flask import Flask, render_template, request
+app = Flask(__name__)
+def lcs(X, Y):
+    m = len(X)
+    n = len(Y)
+    L = [[0]*(n+1) for i in range(m+1)]
+    for i in range(m+1):
+        for j in range(n+1):
+            if i==0 or j==0:
+                L[i][j] = 0
+            elif X[i-1] == Y[j-1]:
+                L[i][j] = L[i-1][j-1] + 1
+            else:
+                L[i][j] = max(L[i-1][j], L[i][j-1])
+    index = L[m][n]
+    lcs_seq = [''] * (index+1)
+    lcs_seq[index] = ''
+    i, j = m, n
+    while i > 0 and j > 0:
+        if X[i-1] == Y[j-1]:
+            lcs_seq[index-1] = X[i-1]
+            i -= 1
+            j -= 1
+            index -= 1
+        elif L[i-1][j] > L[i][j-1]:
+            i -= 1
+        else:
+            j -= 1
+    return lcs_seq, L
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        seq1 = request.form['seq1']
+        seq2 = request.form['seq2']
+        seq1 = [x.strip() for x in seq1.split(',')]
+        seq2 = [x.strip() for x in seq2.split(',')]
+        result, matrix = lcs(seq1,seq2)
+        return render_template('prac8.html', result=result, seq1=seq1, seq2=seq2, matrix=matrix)
+    return render_template('prac8.html', result=None)
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+**HTMl File**
+<html>
+<head>
+    <title>Longest Common Subsequence</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        label,
+        button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        h2,
+        h3 {
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ccc;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Find Longest Common Subsequence</h1>
+        <form method="POST">
+            <label for="seq1">Enter Sequence 1 </label>
+            <input type="text" id="seq1" name="seq1" required>
+            <label for="seq2">Enter Sequence 2 </label>
+            <input type="text" id="seq2" name="seq2" required>
+            <button type="submit">Find LCS</button>
+        </form>
+        {% if result %}
+        <h2>Longest Common Subsequence:</h2>
+        <p>{{ result }}</p>
+        <h3>Input Sequences:</h3>
+        <p>Sequence 1: {{ seq1 }}</p>
+        <p>Sequence 2: {{ seq2 }}</p>
+        <h3>Dynamic Programming Matrix:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    {% for el in seq2 %}
+                    <th>{{ el }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th></th>
+                    <td>0</td>
+                    {% for _ in seq2 %}
+                    <td>0</td>
+                    {% endfor %}
+                </tr>
+                {% for i in range(seq1|length) %}
+                <tr>
+                    <th>{{ seq1[i] }}</th>
+                    <td>0</td>
+                    {% for j in range(seq2|length) %}
+                    <td>{{ matrix[i+1][j+1] }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</body>
+
+</html>
+
+-----Practical 9----
+**Python File**
+from flask import Flask, request, render_template_string
+app = Flask(__name__)
+def fractional_knapsack(profits, weights, capacity):
+    n = len(profits)
+    ratio = [(profits[i] / weights[i], i) for i in range(n)]
+    ratio.sort(reverse=True, key=lambda x: x[0])  
+    total_profit = 0
+    selected_items = [0] * n  
+    for r, i in ratio:
+        if weights[i] <= capacity:
+            selected_items[i] = 1  
+            total_profit += profits[i]
+            capacity -= weights[i]
+        else:
+            selected_items[i] = capacity / weights[i]  
+            total_profit += profits[i] * (capacity / weights[i])
+            break
+    return total_profit, selected_items
+
+@app.route('/', methods=['GET', 'POST'])
+def knapsack():
+    if request.method == 'POST':
+        profits = list(map(int, request.form['profit'].split(',')))
+        weights = list(map(int, request.form['weight'].split(',')))
+        capacity = int(request.form['capacity'])
+        total_profit, selected_items = fractional_knapsack(profits, weights, capacity)
+        return render_template_string(result_html, profits=profits, weights=weights, selected_items=selected_items, total_profit=total_profit)
+    return render_template_string(index_html)
+
+index_html = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Knapsack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center">Fractional Knapsack Problem</h2>
+                <form method="POST" class="mt-4">
+                    <div class="mb-3">
+                        <label class="form-label">Enter Profits (comma separated):</label>
+                        <input type="text" name="profit" class="form-control" required placeholder="e.g. 280, 100, 120, 120">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enter Weights (comma separated):</label>
+                        <input type="text" name="weight" class="form-control" required placeholder="e.g. 40, 10, 20, 24">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enter Knapsack Capacity:</label>
+                        <input type="number" name="capacity" class="form-control" required placeholder="e.g. 60">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Calculate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+result_html = '''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knapsack Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center">Knapsack Result</h2>
+                <table class="table table-striped mt-4">
+                    <thead>
+                        <tr>
+                            <th scope="col">Item</th>
+                            <th scope="col">Profit</th>
+                            <th scope="col">Weight</th>
+                            <th scope="col">Fraction Taken</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(profits|length) %}
+                        <tr>
+                            <th scope="row">{{ i+1 }}</th>
+                            <td>{{ profits[i] }}</td>
+                            <td>{{ weights[i] }}</td>
+                            <td>{{ selected_items[i] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h3 class="text-center mt-4">Total Profit: {{ total_profit }}</h3>
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-primary">Go Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+'''
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Knapsack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center">Fractional Knapsack Problem</h2>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Enter Profits (comma separated):</label>
+                        <input type="text" name="profit" class="form-control" required placeholder="e.g.">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enter Weights (comma separated):</label>
+                        <input type="text" name="weight" class="form-control" required placeholder="e.g. ">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enter Knapsack Capacity:</label>
+                        <input type="number" name="capacity" class="form-control" required placeholder="e.g. ">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Calculate</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+**HTML Result**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knapsack Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center">Knapsack Result</h2>
+                <table class="table table-striped mt-4">
+                    <thead>
+                        <tr>
+                            <th scope="col">Item</th>
+                            <th scope="col">Profit</th>
+                            <th scope="col">Weight</th>
+                            <th scope="col">Fraction Taken</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in range(profits|length) %}
+                        <tr>
+                            <th scope="row">{{ i+1 }}</th>
+                            <td>{{ profits[i] }}</td>
+                            <td>{{ weights[i] }}</td>
+                            <td>{{ selected_items[i] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h3 class="text-center mt-4">Total Profit: {{ total_profit }}</h3>
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-primary">Go Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+-----Practical 10----
+**Python File**
+from flask import Flask, render_template, request
+import heapq
+app = Flask(__name__)
+class Node:
+    def __init__(self, freq, char=None, left=None, right=None):
+        self.freq = freq
+        self.char = char
+        self.left = left
+        self.right = right
+    def __lt__(self, other):
+        return self.freq < other.freq
+def build_huffman_tree(char_freq):
+    heap = [Node(freq, char) for char, freq in char_freq.items()]
+    heapq.heapify(heap)
+    while len(heap) > 1:
+        left = heapq.heappop(heap)
+        right = heapq.heappop(heap)
+        merged = Node(left.freq + right.freq, None, left, right)
+        heapq.heappush(heap, merged)
+    return heap[0]
+def generate_huffman_codes(node, prefix='', codebook={}):
+    if node.char:
+        codebook[node.char] = prefix
+    else:
+        generate_huffman_codes(node.left, prefix + '0', codebook)
+        generate_huffman_codes(node.right, prefix + '1', codebook)
+    return codebook
+def encode(text, codebook):
+    return ''.join([codebook[char] for char in text])
+def decode(encoded_text, huffman_tree):
+    decoded_text = []
+    node = huffman_tree
+    for bit in encoded_text:
+        if bit == '0':
+            node = node.left
+        else:
+            node = node.right
+        if node.char:
+            decoded_text.append(node.char)
+            node = huffman_tree
+    return ''.join(decoded_text)
+@app.route('/', methods=['GET', 'POST'])
+def huffman():
+    if request.method == 'POST':
+        characters = request.form.getlist('characters')
+        frequencies = list(map(float, request.form.getlist('frequencies')))
+        char_freq = {characters[i]: frequencies[i] for i in range(len(characters))}
+        huffman_tree = build_huffman_tree(char_freq)
+        codebook = generate_huffman_codes(huffman_tree)
+        text_to_encode = request.form['text_to_encode']
+        encoded_text = encode(text_to_encode, codebook)
+        text_to_decode = request.form['text_to_decode']
+        decoded_text = decode(text_to_decode, huffman_tree)
+        return render_template('prac10_result.html', encoded_text=encoded_text, decoded_text=decoded_text, codebook=codebook)
+    return render_template('prac10.html')
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,
+ initial-scale=1.0">
+    <title>Huffman Encoding and Decoding</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-b
+ eta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1,
+        h3 {
+            color: #333;
+        }
+
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: calc(100%-20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .codebook {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+
+        .codebook ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .codebook li {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Huffman Encoding and Decoding</h1>
+    <form method="POST">
+        <h3>Enter Characters and Frequencies:</h3>
+        <div id="character-freq-inputs">
+            <div>
+                <label>Character:</label>
+                <input type="text" name="characters" required>
+                <label>Frequency:</label>
+                <input type="number" step="0.01" name="frequencies" required>
+            </div>
+        </div>
+        <button type="button" onclick="addCharacterInput()">Add
+            More Characters</button>
+        <br><br>
+        <label for="text_to_encode">Text to Encode (e.g.,
+            CAD-BE):</label>
+        <input type="text" id="text_to_encode" name="text_to_encode" required>
+        <br><br>
+        <label for="text_to_decode">Encoded Text to Decode (e.g.,
+            10011100110111100):</label>
+        <input type="text" id="text_to_decode" name="text_to_decode" required>
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <script>
+        function addCharacterInput() {
+            const div = document.createElement('div');
+            div.innerHTML = `
+ <label>Character:</label>
+ <input type="text" name="characters" required>
+ <label>Frequency:</label>
+ <input type="number" step="0.01"
+ name="frequencies" required>
+ `;
+            document.getElementById('character-freq-inputs').appendChild(div)
+                ;
+        }
+    </script>
+</body>
+
+</html>
+
+-----Practical 11----
+**Python File**
+from flask import Flask, render_template, request
+import heapq
+app = Flask(__name__)
+graph = {
+    'A': {'A': 0, 'B': 20, 'C': 30, 'D': float('inf'), 'E': float('inf')},
+    'B': {'A': float('inf'), 'B': 0, 'C': float('inf'), 'D': 15, 'E': float('inf')},
+    'C': {'A': float('inf'), 'B': float('inf'), 'C': 0, 'D': float('inf'), 'E': 25},
+    'D': {'A': float('inf'), 'B': float('inf'), 'C': float('inf'), 'D': 0, 'E': 10},
+    'E': {'A': float('inf'), 'B': float('inf'), 'C': float('inf'), 'D': float('inf'), 'E': 0},
+}
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    priority_queue = [(0, start)]
+    while priority_queue:
+        current_distance, current_node = heapq.heappop(priority_queue)
+        if current_distance > distances[current_node]:
+            continue
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    return distances
+
+@app.template_filter('format_inf')
+def format_inf(value):
+    return '∞' if value == float('inf') else value
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = {}
+    start_node = None
+    error_message = None
+
+    if request.method == 'POST':
+        start_node = request.form['start_node'].upper()
+        if start_node in graph:
+            result = dijkstra(graph, start_node)
+        else:
+            error_message = "Invalid start node. Please enter a valid city (A-E)."
+
+    return render_template('prac11.html', result=result, start_node=start_node, error_message=error_message)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shortest Path Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Find the Minimum Cost Path</h1>
+    <form method="post">
+        <label for="start_node">Enter Start City (A-E): </label>
+        <input type="text" id="start_node" name="start_node" required>
+        <button type="submit">Calculate</button>
+    </form>
+    {% if error_message %}
+    <p class="error">{{ error_message }}</p>
+    {% endif %}
+    {% if result %}
+    <h2>Minimum Cost Path from{{ start_node }}</h2>
+    <table>
+        <tr>
+            <th>Destination</th>
+            <th>Cost</th>
+        </tr>
+        {% for city, cost in result.items() %}
+        <tr>
+            <td>{{ city }}</td>
+            <td>{{ cost|format_inf }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</body>
+
+</html>
+
+-----Practical 12----
+**Python File**
+from flask import Flask, render_template, request, redirect, url_for
+import itertools
+import numpy as np
+app = Flask(__name__)
+
+def calculate_tsp(matrix):
+    n = len(matrix)
+    min_cost = float('inf')
+    min_path = []
+    for perm in itertools.permutations(range(1, n)):
+        current_cost = matrix[0][perm[0]] + sum(matrix[perm[i]][perm[i + 1]] for i in range(len(perm) - 1)) + matrix[perm[-1]][0]
+        if current_cost < min_cost:
+            min_cost = current_cost
+            min_path = [0] + list(perm) + [0]
+    path_taken = '-'.join(str(x + 1) for x in min_path)
+    min_cost_details = [
+        (min_path[i] + 1, min_path[i + 1] + 1, matrix[min_path[i]][min_path[i + 1]])
+        for i in range(len(min_path) - 1)
+    ]
+    return min_cost, path_taken, min_cost_details
+
+@app.route('/', methods=['GET', 'POST'])
+def input_matrix():
+    if request.method == 'POST':
+        size = int(request.form['size'])
+        return redirect(url_for('get_matrix', size=size))
+    return render_template('prac12_input_form.html')
+
+@app.route('/matrix/<int:size>', methods=['GET', 'POST'])
+def get_matrix(size):
+    if request.method == 'POST':
+        matrix = []
+        for i in range(size):
+            row = []
+            for j in range(size):
+                value = request.form.get(f'cell_{i}_{j}')
+                row.append(float('inf') if value.lower() == 'inf' else int(value))
+            matrix.append(row)
+        matrix = np.array(matrix)
+        min_cost, path_taken, min_cost_details = calculate_tsp(matrix)
+        return render_template(
+            'prac12.html',
+            min_cost=min_cost,
+            path_taken=path_taken,
+            min_cost_details=min_cost_details,
+        )
+    return render_template('prac12_input.html', size=size)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+**HTMl File**
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Solution</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Travelling Salesman Problem Solution</h1>
+    <p><b>Minimum Cost:</b> {{ min_cost }}</p>
+    <p><b>Path Taken:</b> {{ path_taken }}</p>
+    <ul>
+        {% for frm, to, cost in min_cost_details %}
+        <li>{{ frm }}- {{ to }} = {{ cost }}</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
+
+**HTML_input**
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Distance Matrix</title>
+</head>
+<body>
+    <h1>Enter Distances Between Cities</h1>
+    <form action="" method="post">
+        <table>
+            {% for i in range(size) %}
+            <tr>
+                {% for j in range(size) %}
+                <td>
+                    <input type="text" name="cell_{{ i }}_{{ j }}" placeholder="{{ 'inf' if i == j else '0' }}"
+                        value="{{ 'inf' if i == j else '' }}" required>
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit">Calculate</button>
+    </form>
+</body>
+</html>
+
+**HTML_input_form**
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Matrix Size</title>
+</head>
+<body>
+    <h1>Enter the Size of Distance Matrix</h1>
+    <form action="/" method="post">
+        <label for="size">Number of cities:</label>
+        <input type="number" id="size" name="size" min="2" required>
+        <button type="submit">Next</button>
+    </form>
+</body>
+
+</html>
